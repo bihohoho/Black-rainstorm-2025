@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>黑雨 Black Rain | 專屬生活紀錄</title>
+  <!-- Tailwind CSS CDN 快速排版 -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js 畫體重圖表 -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen pb-12">
+
+  <!-- Header / Hero Section -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+    <div class="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-full bg-slate-900 text-white flex items-center justify-center font-bold text-lg shadow">
+          🐱
+        </div>
+        <div>
+          <h1 class="text-xl font-bold tracking-tight text-slate-900 leading-none">黑雨 (Black Rain)</h1>
+          <p class="text-xs text-slate-500 mt-1">Silver Tabby British Shorthair</p>
+        </div>
+      </div>
+      <div class="flex items-center space-x-2">
+        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
+          <span class="w-1.5 h-1.5 mr-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
+          連線 Google Sheet 中
+        </span>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-4xl mx-auto px-4 pt-6 space-y-6">
+
+    <!-- 狀態卡片區 -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
+        <div class="text-xs text-slate-400 font-medium">最新體重</div>
+        <div class="text-2xl font-black text-slate-800 mt-1" id="latest-weight">-- kg</div>
+        <div class="text-[10px] text-slate-400 mt-0.5" id="latest-weight-date">讀取中...</div>
+      </div>
+      <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
+        <div class="text-xs text-slate-400 font-medium">年齡</div>
+        <div class="text-2xl font-black text-slate-800 mt-1">1 歲+</div>
+        <div class="text-[10px] text-slate-400 mt-0.5">2025 年 8 月回家</div>
+      </div>
+      <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
+        <div class="text-xs text-slate-400 font-medium">飲食戒律</div>
+        <div class="text-sm font-bold text-rose-600 mt-2 flex items-center">
+          <i class="fa-solid fa-ban mr-1.5"></i> 嚴禁雞肉配方
+        </div>
+        <div class="text-[10px] text-slate-400 mt-0.5">避免過敏 / 軟便</div>
+      </div>
+      <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
+        <div class="text-xs text-slate-400 font-medium">現役貓砂</div>
+        <div class="text-sm font-bold text-slate-700 mt-2 truncate">原味豆腐砂 / 礦砂</div>
+        <div class="text-[10px] text-slate-400 mt-0.5">日常順暢使用中</div>
+      </div>
+    </div>
+
+    <!-- 體重追蹤折線圖 -->
+    <section class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <h2 class="text-base font-bold text-slate-900 flex items-center">
+            <i class="fa-solid fa-chart-line text-blue-500 mr-2"></i> 成長體重曲線
+          </h2>
+          <p class="text-xs text-slate-400 mt-0.5">自動讀取 Google Sheet「重量」資料</p>
+        </div>
+        <span class="text-xs bg-slate-100 text-slate-600 px-2 py-1 rounded-md" id="weight-count">0 筆記錄</span>
+      </div>
+      <div class="h-64 sm:h-72 w-full">
+        <canvas id="weightChart"></canvas>
+      </div>
+    </section>
+
+    <!-- 糧食與用品評分庫 -->
+    <section class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-100 gap-2">
+        <h2 class="text-base font-bold text-slate-900 flex items-center">
+          <i class="fa-solid fa-utensils text-amber-500 mr-2"></i> 飲食清單與評分
+        </h2>
+        <div class="flex space-x-1.5 text-xs">
+          <button class="filter-btn active px-3 py-1 rounded-full bg-slate-900 text-white font-medium">全部</button>
+          <button class="filter-btn px-3 py-1 rounded-full bg-slate-100 text-slate-600 font-medium hover:bg-slate-200">乾糧</button>
+          <button class="filter-btn px-3 py-1 rounded-full bg-slate-100 text-slate-600 font-medium hover:bg-slate-200">濕糧/主食罐</button>
+        </div>
+      </div>
+
+      <!-- 食物卡片清單 -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4" id="food-list">
+        <!-- 預設常用品牌展示 (若 Google Sheet 尚未填滿詳細描述時墊底) -->
+        <div class="p-4 rounded-xl border border-slate-100 bg-slate-50/50 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold px-2 py-0.5 bg-blue-100 text-blue-700 rounded-md">乾糧</span>
+              <span class="text-xs text-amber-500">❤️❤️❤️❤️❤️</span>
+            </div>
+            <div class="font-bold text-slate-800 mt-2">Ziwi Peak 巔峰（鹿肉 / 羊肉配方）</div>
+            <p class="text-xs text-slate-500 mt-1">肉含量極高、適口性極佳，完全無雞肉成分，穩定回購。</p>
+          </div>
+          <div class="text-[11px] text-slate-400 mt-3 pt-2 border-t border-slate-200/60">
+            採購渠道：WnP / 街貓旅社
+          </div>
+        </div>
+
+        <div class="p-4 rounded-xl border border-slate-100 bg-slate-50/50 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold px-2 py-0.5 bg-blue-100 text-blue-700 rounded-md">乾糧</span>
+              <span class="text-xs text-amber-500">❤️❤️❤️❤️</span>
+            </div>
+            <div class="font-bold text-slate-800 mt-2">Nutrience 紐崔斯 SubZero（鴨肉與梨配方）</div>
+            <p class="text-xs text-slate-500 mt-1">凍乾混合乾糧，便便形態靚，腸胃耐受度好。</p>
+          </div>
+          <div class="text-[11px] text-slate-400 mt-3 pt-2 border-t border-slate-200/60">
+            採購渠道：香港寵物店
+          </div>
+        </div>
+
+        <div class="p-4 rounded-xl border border-slate-100 bg-slate-50/50 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold px-2 py-0.5 bg-blue-100 text-blue-700 rounded-md">乾糧</span>
+              <span class="text-xs text-amber-500">❤️❤️❤️❤️</span>
+            </div>
+            <div class="font-bold text-slate-800 mt-2">Farmina 法米納 N&D（藜麥南瓜鴨肉）</div>
+            <p class="text-xs text-slate-500 mt-1">單一肉源無雞肉配方，對消化系統好，顆粒大小適中。</p>
+          </div>
+          <div class="text-[11px] text-slate-400 mt-3 pt-2 border-t border-slate-200/60">
+            採購渠道：網購 / 門市
+          </div>
+        </div>
+
+        <div class="p-4 rounded-xl border border-rose-100 bg-rose-50/30 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold px-2 py-0.5 bg-rose-100 text-rose-700 rounded-md">禁忌/地雷</span>
+              <span class="text-xs text-rose-500">💔💔</span>
+            </div>
+            <div class="font-bold text-slate-800 mt-2">任何含雞肉 / 雞油（Chicken Fat）之食品</div>
+            <p class="text-xs text-slate-500 mt-1">購買任何罐頭或乾糧時必須仔細覆核 Ingredient List，嚴禁含雞肉成分。</p>
+          </div>
+          <div class="text-[11px] text-rose-400 mt-3 pt-2 border-t border-rose-100">
+            健康備忘事項
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 補給與常用連結 -->
+    <section class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
+      <h2 class="text-base font-bold text-slate-900 flex items-center mb-3">
+        <i class="fa-solid fa-link text-indigo-500 mr-2"></i> 常用補給連結
+      </h2>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs">
+        <a href="https://zh.wnp.com.hk" target="_blank" class="flex items-center justify-between p-3 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200/80 transition">
+          <span class="font-semibold text-slate-700">WnP 訂糧平台</span>
+          <i class="fa-solid fa-arrow-up-right-from-square text-slate-400"></i>
+        </a>
+        <a href="https://www.streetcatshostel.com.hk/" target="_blank" class="flex items-center justify-between p-3 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200/80 transition">
+          <span class="font-semibold text-slate-700">街貓旅社補給</span>
+          <i class="fa-solid fa-arrow-up-right-from-square text-slate-400"></i>
+        </a>
+        <a href="https://www.vetopia.com.hk/" target="_blank" class="flex items-center justify-between p-3 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200/80 transition">
+          <span class="font-semibold text-slate-700">Vetopia 驅蟲用品</span>
+          <i class="fa-solid fa-arrow-up-right-from-square text-slate-400"></i>
+        </a>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="max-w-4xl mx-auto px-4 text-center text-xs text-slate-400 mt-8">
+    Made with ❤️ for 黑雨 | Powered by GitHub Pages & Google Sheets
+  </footer>
+
+  <!-- 讀取 Google Sheets CSV 的 JavaScript 邏輯 -->
+  <script>
+    // 你的 Google Sheet ID
+    const SHEET_ID = '11nUA26NWSpkY3HdLYSW4RgOKH79B3eGdswrC9Qo6UNE';
+    
+    // 重量分頁的 CSV 下載連結
+    const WEIGHT_CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=重量`;
+
+    async function loadWeightData() {
+      try {
+        const response = await fetch(WEIGHT_CSV_URL);
+        const text = await response.text();
+        
+        // 解析 CSV 行列
+        const rows = text.split('\n').map(row => {
+          return row.split(',').map(val => val.replace(/^"|"$/g, '').trim());
+        });
+
+        const labels = [];
+        const weights = [];
+        let isKgMode = false;
+
+        for (let i = 0; i < rows.length; i++) {
+          const colDate = rows[i][0];
+          const colWeight = rows[i][1];
+
+          if (!colDate || colDate === '日期') continue;
+          if (colWeight === 'kg') {
+            isKgMode = true;
+            continue;
+          }
+
+          const parsedWeight = parseFloat(colWeight);
+          if (isNaN(parsedWeight)) continue;
+
+          labels.push(colDate);
+          // 若初期是克(g)，自動轉成 kg 統一單位
+          if (!isKgMode && parsedWeight > 50) {
+            weights.push((parsedWeight / 1000).toFixed(2));
+          } else {
+            weights.push(parsedWeight.toFixed(2));
+          }
+        }
+
+        // 更新頂部卡片
+        if (weights.length > 0) {
+          const lastWeight = weights[weights.length - 1];
+          const lastDate = labels[labels.length - 1];
+          document.getElementById('latest-weight').innerText = `${lastWeight} kg`;
+          document.getElementById('latest-weight-date').innerText = `記錄於 ${lastDate}`;
+          document.getElementById('weight-count').innerText = `${weights.length} 筆記錄`;
+        }
+
+        renderChart(labels, weights);
+
+      } catch (err) {
+        console.error('無法讀取體重資料:', err);
+        document.getElementById('latest-weight').innerText = '5.1 kg';
+        document.getElementById('latest-weight-date').innerText = '離線資料';
+      }
+    }
+
+    function renderChart(labels, data) {
+      const ctx = document.getElementById('weightChart').getContext('2d');
+      new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: '體重 (kg)',
+            data: data,
+            borderColor: '#3b82f6',
+            backgroundColor: 'rgba(59, 130, 246, 0.08)',
+            fill: true,
+            tension: 0.35,
+            pointBackgroundColor: '#2563eb',
+            pointRadius: 3,
+            pointHoverRadius: 6,
+            borderWidth: 2.5
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: (ctx) => ` 體重: ${ctx.parsed.y} kg`
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: { maxTicksLimit: 8, font: { size: 10 } }
+            },
+            y: {
+              beginAtZero: false,
+              grid: { color: '#f1f5f9' },
+              ticks: {
+                font: { size: 10 },
+                callback: (val) => val + ' kg'
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // 啟動加載
+    loadWeightData();
+  </script>
+</body>
+</html>
