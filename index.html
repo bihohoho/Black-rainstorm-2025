@@ -40,8 +40,8 @@
     <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
       <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
         <div class="text-xs text-slate-400 font-medium">最新體重</div>
-        <div class="text-2xl font-black text-slate-800 mt-1" id="latest-weight">-- kg</div>
-        <div class="text-[10px] text-slate-400 mt-0.5" id="latest-weight-date">讀取中...</div>
+        <div class="text-2xl font-black text-slate-800 mt-1" id="latest-weight">5.10 kg</div>
+        <div class="text-[10px] text-slate-400 mt-0.5" id="latest-weight-date">記錄於 8/8/2026</div>
       </div>
       <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
         <div class="text-xs text-slate-400 font-medium">年齡</div>
@@ -57,7 +57,7 @@
       </div>
       <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
         <div class="text-xs text-slate-400 font-medium">糧食與補給庫</div>
-        <div class="text-2xl font-black text-indigo-600 mt-1" id="food-count">0 款</div>
+        <div class="text-2xl font-black text-indigo-600 mt-1" id="food-count">19 款</div>
         <div class="text-[10px] text-slate-400 mt-0.5">已試過並記錄</div>
       </div>
     </div>
@@ -71,7 +71,7 @@
           </h2>
           <p class="text-xs text-slate-400 mt-0.5">即時同步 Google Sheet「重量」分頁</p>
         </div>
-        <span class="text-xs bg-slate-100 text-slate-600 px-2 py-1 rounded-md" id="weight-count">讀取中</span>
+        <span class="text-xs bg-slate-100 text-slate-600 px-2 py-1 rounded-md" id="weight-count">30 筆記錄</span>
       </div>
       <div class="h-64 sm:h-72 w-full">
         <canvas id="weightChart"></canvas>
@@ -98,4 +98,30 @@
 
       <!-- 食物卡片清單 -->
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4" id="food-list">
-        <div class="col-span-full py-8 text-center text-slate-400 text-
+      </div>
+    </section>
+
+    <!-- 補給與常用連結 -->
+    <section class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
+      <h2 class="text-base font-bold text-slate-900 flex items-center mb-3">
+        <i class="fa-solid fa-link text-indigo-500 mr-2"></i> 常用補給連結
+      </h2>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs">
+        <a href="https://zh.wnp.com.hk" target="_blank" class="flex items-center justify-between p-3 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200/80 transition">
+          <span class="font-semibold text-slate-700">WnP 訂糧平台</span>
+          <i class="fa-solid fa-arrow-up-right-from-square text-slate-400"></i>
+        </a>
+        <a href="https://www.streetcatshostel.com.hk/" target="_blank" class="flex items-center justify-between p-3 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200/80 transition">
+          <span class="font-semibold text-slate-700">街貓旅社補給</span>
+          <i class="fa-solid fa-arrow-up-right-from-square text-slate-400"></i>
+        </a>
+        <a href="https://www.vetopia.com.hk/" target="_blank" class="flex items-center justify-between p-3 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200/80 transition">
+          <span class="font-semibold text-slate-700">Vetopia 驅蟲用品</span>
+          <i class="fa-solid fa-arrow-up-right-from-square text-slate-400"></i>
+        </a>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="max-w-4xl mx-auto px-4 text-center text-xs text-slate-400 mt-
