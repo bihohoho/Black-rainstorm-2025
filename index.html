@@ -13,17 +13,24 @@
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen pb-12">
 
-  <!-- Header -->
   <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
     <div class="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
       <div class="flex items-center space-x-3">
-        <div class="w-10 h-10 rounded-full bg-slate-900 text-white flex items-center justify-center font-bold text-lg shadow">
-          🐱
-        </div>
+        <div class="w-10 h-10 rounded-full bg-slate-900 text-white flex items-center justify-center font-bold text-lg shadow">🐱</div>
         <div>
           <h1 class="text-xl font-bold tracking-tight text-slate-900 leading-none">黑雨 (Black Rain)</h1>
           <p class="text-xs text-slate-500 mt-1">Silver Tabby British Shorthair</p>
         </div>
       </div>
-      <div class="flex items-center space-x-2">
-        <span id="sync-status" class="inline-flex items-center px-2.5 py-1 rounded
+      <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
+        <span class="w-1.5 h-1.5 mr-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
+        即時連線中
+      </span>
+    </div>
+  </header>
+
+  <main class="max-w-4xl mx-auto px-4 pt-6 space-y-6">
+
+    <!-- 狀態卡片區 -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-10
