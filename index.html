@@ -45,8 +45,8 @@
       </div>
       <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
         <div class="text-xs text-slate-400 font-medium">年齡</div>
-        <div class="text-2xl font-black text-slate-800 mt-1">1 歲+</div>
-        <div class="text-[10px] text-slate-400 mt-0.5">2025 年 8 月回家</div>
+        <div class="text-2xl font-black text-slate-800 mt-1" id="cat-age">1Y 4M</div>
+        <div class="text-[10px] text-slate-400 mt-0.5">2025 年 6 月 20 日出生</div>
       </div>
       <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
         <div class="text-xs text-slate-400 font-medium">飲食戒律</div>
@@ -62,23 +62,7 @@
       </div>
     </div>
 
-    <!-- 體重追蹤折線圖 -->
-    <section class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
-      <div class="flex items-center justify-between mb-4">
-        <div>
-          <h2 class="text-base font-bold text-slate-900 flex items-center">
-            <i class="fa-solid fa-chart-line text-blue-500 mr-2"></i> 成長體重曲線
-          </h2>
-          <p class="text-xs text-slate-400 mt-0.5">即時同步 Google Sheet「重量」分頁</p>
-        </div>
-        <span class="text-xs bg-slate-100 text-slate-600 px-2 py-1 rounded-md" id="weight-count">30 筆記錄</span>
-      </div>
-      <div class="h-64 sm:h-72 w-full relative">
-        <canvas id="weightChart"></canvas>
-      </div>
-    </section>
-
-    <!-- 飲食評分庫 -->
+    <!-- 飲食評分庫（置頂優先顯示） -->
     <section class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-100 gap-3">
         <div>
@@ -98,6 +82,22 @@
 
       <!-- 食物卡片清單 -->
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4" id="food-list">
+      </div>
+    </section>
+
+    <!-- 體重追蹤折線圖（移至飲食評分庫下方） -->
+    <section class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <h2 class="text-base font-bold text-slate-900 flex items-center">
+            <i class="fa-solid fa-chart-line text-blue-500 mr-2"></i> 成長體重曲線
+          </h2>
+          <p class="text-xs text-slate-400 mt-0.5">即時同步 Google Sheet「重量」分頁</p>
+        </div>
+        <span class="text-xs bg-slate-100 text-slate-600 px-2 py-1 rounded-md" id="weight-count">30 筆記錄</span>
+      </div>
+      <div class="h-64 sm:h-72 w-full relative">
+        <canvas id="weightChart"></canvas>
       </div>
     </section>
 
@@ -131,6 +131,28 @@
   <script>
     const SHEET_ID = '11nUA26NWSpkY3HdLYSW4RgOKH79B3eGdswrC9Qo6UNE';
 
+    // 自動計算年齡 (出生日期: 2025-06-20)
+    function updateCatAge() {
+      const birthDate = new Date(2025, 5, 20); // 月份由 0 起計，5 代表 6 月
+      const today = new Date();
+
+      let years = today.getFullYear() - birthDate.getFullYear();
+      let months = today.getMonth() - birthDate.getMonth();
+
+      if (today.getDate() < birthDate.getDate()) {
+        months--;
+      }
+      if (months < 0) {
+        years--;
+        months += 12;
+      }
+
+      const ageEl = document.getElementById('cat-age');
+      if (ageEl) {
+        ageEl.innerText = `${years}Y ${months}M`;
+      }
+    }
+
     const defaultWeights = {
       labels: ['24/8/2025','29/8/2025','5/9/2025','11/9/2025','14/9/2025','16/9/2025','19/9/2025','26/9/2025','28/9/2025','4/10/2025','7/10/2025','11/10/2025','18/10/2025','26/10/2025','2/11/2025','6/11/2025','15/11/2025','22/11/2025','10/12/2025','20/12/2025','28/12/2025','11/1/2026','31/1/2026','19/2/2026','14/3/2026','6/4/2026','24/5/2026','20/6/2026','26/7/2026','8/8/2026'],
       data: [0.45, 0.56, 0.70, 0.81, 0.89, 0.96, 1.05, 1.11, 1.21, 1.36, 1.48, 1.50, 1.69, 1.84, 2.02, 2.10, 2.23, 2.40, 2.80, 2.90, 3.10, 3.20, 3.70, 3.90, 4.20, 4.20, 4.60, 4.80, 4.80, 5.10]
@@ -162,7 +184,6 @@
     let currentFilter = 'all';
     let chartInstance = null;
 
-    // 先獨立執行卡片渲染，絕對不被圖表阻擋
     function renderFoodCards() {
       const container = document.getElementById('food-list');
       if (!container) return;
@@ -216,7 +237,6 @@
       renderFoodCards();
     }
 
-    // 安全渲染圖表（帶重試機制）
     function safeRenderChart(labels, data, attempt = 0) {
       if (typeof Chart === 'undefined') {
         if (attempt < 10) {
@@ -262,7 +282,6 @@
       }
     }
 
-    // 背景連線更新 Google Sheet
     async function syncSheetData() {
       // 1. 同步重量
       try {
@@ -326,17 +345,15 @@
       }
     }
 
-    // 頁面就緒時立即執行
-    document.addEventListener('DOMContentLoaded', () => {
+    function initApp() {
+      updateCatAge();
       renderFoodCards();
       safeRenderChart(defaultWeights.labels, defaultWeights.data);
       syncSheetData();
-    });
+    }
 
-    // 兜底執行
-    renderFoodCards();
-    safeRenderChart(defaultWeights.labels, defaultWeights.data);
-    syncSheetData();
+    document.addEventListener('DOMContentLoaded', initApp);
+    initApp();
   </script>
 </body>
 </html>
